@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -5,6 +6,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -181,14 +184,19 @@ public class Main implements Runnable, KeyListener {
         {
             importNewImage();
         });
-        f4 = new JMenuItem("Item 4");
+        f4 = new JMenuItem("Export");
+        f4.addActionListener(
+                e->{
+                    export();
+                }
+        );
         f5 = new JMenuItem("Item 5");
         fileMenu.add(f1);
         fileMenu.add(f2);
         fileMenu.add(submenu);
         fileMenu.addSeparator();
         fileMenu.add(f3);
-        submenu.add(f4);
+        fileMenu.add(f4);
         submenu.add(f5);
         mb.add(fileMenu);
         frame.setJMenuBar(mb);
@@ -196,9 +204,9 @@ public class Main implements Runnable, KeyListener {
     }
 
     public void importNewImage() {
-
+//http://stackoverflow.com/questions/12558413/how-to-filter-file-type-in-filedialog
         String dir;
-        FileDialog fdL = new FileDialog(new Frame(), "load me", FileDialog.LOAD);
+        FileDialog fdL = new FileDialog(new Frame(), "Import", FileDialog.LOAD);
         fdL.show();
         dir = fdL.getDirectory();
         String fileName = fdL.getFile();
@@ -235,6 +243,38 @@ public class Main implements Runnable, KeyListener {
 
         g.dispose();
         bufferStrategy.show();
+    }
+
+    public void export(){
+
+        String dir;
+        FileDialog fdL = new FileDialog(new Frame(), "Export", FileDialog.SAVE);
+        fdL.show();
+        dir = fdL.getDirectory();
+        String fileName = fdL.getFile();
+
+        //part of code from https://stackoverflow.com/questions/12984207/cannot-convert-current-canvas-data-into-image-in-java
+//
+//        BufferedImage image=new BufferedImage(canvas.getWidth(), canvas.getHeight(),BufferedImage.TYPE_INT_RGB);
+//
+//        Graphics2D g2d = image.createGraphics();
+//        canvas.printAll(g2d);
+//        g2d.dispose();
+//        try {
+//            ImageIO.write(image, "png", new File(dir+fileName));
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+        Container pane = frame.getContentPane();
+        BufferedImage img = new BufferedImage(pane.getWidth(), pane.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = img.createGraphics();
+        pane.printAll(g2d);
+        g2d.dispose();
+        try {
+            ImageIO.write(img, "png", new File(dir+fileName));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
