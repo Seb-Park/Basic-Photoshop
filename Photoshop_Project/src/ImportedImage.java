@@ -8,8 +8,10 @@ public class ImportedImage {
     public BufferedImage image;
     String path;
     Pixel[][] pixels;
+    public double scale;
 
     public ImportedImage(String pPath) {
+        scale = 0.5;
         path = pPath;
         File loadFile = new File(pPath);
         try {

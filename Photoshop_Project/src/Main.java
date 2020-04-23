@@ -8,7 +8,6 @@ import java.awt.image.BufferStrategy;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main implements Runnable, KeyListener {
     final int WIDTH = 1000;
@@ -17,11 +16,17 @@ public class Main implements Runnable, KeyListener {
     public JFrame frame;
     public Canvas canvas;
     public JPanel panel;
-
+    public JPanel rightContainer;
+    public JButton importNewButton;
+    public JButton quickRender;
     public BufferStrategy bufferStrategy;
-
     public String filePath;
     public ArrayList<ImportedImage> importedImages;
+    JMenuBar menuBar;
+    JMenu fileMenu, submenu;
+    JMenuItem menuItem;
+    JRadioButtonMenuItem rbMenuItem;
+    JCheckBoxMenuItem cbMenuItem;
 
     public Main() {
 
@@ -41,6 +46,7 @@ public class Main implements Runnable, KeyListener {
 //        filePath = scanner.nextLine();
 //        JOptionPane.showInputDialog(frame, filePath);
 //        System.out.println(filePath);
+        render();
         while (true) {
             moveThings();
 //            render();
@@ -65,17 +71,35 @@ public class Main implements Runnable, KeyListener {
         frame = new JFrame("Photostore");
         panel = (JPanel) frame.getContentPane();
         panel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        panel.setLayout(null);
+        panel.setLayout(new BorderLayout(0, 0));
+
+        rightContainer = new JPanel();
+        rightContainer.setLayout(new BoxLayout(rightContainer, BoxLayout.Y_AXIS));
+        rightContainer.setBackground(new Color(50, 50, 50));
+        importNewButton = new JButton("New Image +");
+        importNewButton.setBackground(new Color(100, 100, 100));
+        importNewButton.setOpaque(true);
+        importNewButton.addActionListener(e -> {
+            importNewImage();
+        });
+        quickRender = new JButton("Quick Render");
+        quickRender.addActionListener(e -> {
+            render();
+        });
+        rightContainer.add(importNewButton);
+        rightContainer.add(quickRender);
 
         canvas = new Canvas();
         canvas.setBounds(0, 0, WIDTH, HEIGHT);
         canvas.setIgnoreRepaint(true);
 
-        panel.add(canvas);
+        panel.add(BorderLayout.CENTER, canvas);
+        panel.add(BorderLayout.EAST, rightContainer);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setResizable(true);
+
         frame.setVisible(true);
 
         canvas.createBufferStrategy(2);
@@ -86,10 +110,89 @@ public class Main implements Runnable, KeyListener {
         frame.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
                 Component c = (Component) evt.getSource();
-                canvas.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                render();
+                canvas.setBounds(0, 0, frame.getWidth() - rightContainer.getWidth(), frame.getHeight());
+//                render();
             }
+
+//            /** Time to wait */
+//            private final int DELAY = 1000;
+//            /** Waiting timer */
+//            private javax.swing.Timer waitingTimer;
+//
+//            /**
+//             * Handle resize event.
+//             */
+//            @Override
+//            public void componentResized(ComponentEvent e)
+//            {
+//                if (this.waitingTimer==null)
+//                {
+//                    /* Start waiting for DELAY to elapse. */
+//                    this.waitingTimer = new Timer(DELAY,this);
+//                    this.waitingTimer.start();
+//                }
+//                else
+//                {
+//                    /* Event came too soon, swallow it by resetting the timer.. */
+//                    this.waitingTimer.restart();
+//                }
+//            }
+//
+//            /**
+//             * Actual resize method
+//             */
+//            public void applyResize()
+//            {
+//                //...
+//            }
+//
+//            /**
+//             * Handle waitingTimer event
+//             */
+//            public void actionPerformed(ActionEvent ae)
+//            {
+//                /* Timer finished? */
+//                if (ae.getSource()==this.waitingTimer)
+//                {
+//                    /* Stop timer */
+//                    this.waitingTimer.stop();
+//                    this.waitingTimer = null;
+//                    /* Resize */
+//                    this.applyResize();
+//                }
+//            }
         });
+
+        setUpMenu();
+    }
+
+    public void setUpMenu() {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+
+        JMenuItem f1, f2, f3, f4, f5;
+//        JFrame f = new JFrame("Menu and MenuItem Example");
+        JMenuBar mb = new JMenuBar();
+        fileMenu = new JMenu("File");
+        submenu = new JMenu("Open Recent");
+        f1 = new JMenuItem("Open...");
+        f2 = new JMenuItem("Open Recent");
+        f3 = new JMenuItem("Import...");
+        f3.addActionListener(e->
+        {
+            importNewImage();
+        });
+        f4 = new JMenuItem("Item 4");
+        f5 = new JMenuItem("Item 5");
+        fileMenu.add(f1);
+        fileMenu.add(f2);
+        fileMenu.add(submenu);
+        fileMenu.addSeparator();
+        fileMenu.add(f3);
+        submenu.add(f4);
+        submenu.add(f5);
+        mb.add(fileMenu);
+        frame.setJMenuBar(mb);
+        frame.setVisible(true);
     }
 
     public void importNewImage() {
@@ -102,13 +205,14 @@ public class Main implements Runnable, KeyListener {
 
         FileInputStream fis;
         try {
-            fis = new FileInputStream(dir + fileName);
+            if (fileName.endsWith(".png") || fileName.endsWith(".jpg")) {
+                fis = new FileInputStream(dir + fileName);
 //            ObjectInputStream ois=new ObjectInputStream(fis);
 //            var = ois.readObject();
-            importedImages.add(new ImportedImage(dir + fileName));
-            fis.close();
-            System.out.println("File " + fileName + " was loaded successfully");
-
+                importedImages.add(new ImportedImage(dir + fileName));
+                fis.close();
+                System.out.println("File " + fileName + " was loaded successfully");
+            }
         } catch (IOException e) {
             System.out.println("IOException: Image could not be loaded.");
             System.out.println(e);
@@ -120,11 +224,11 @@ public class Main implements Runnable, KeyListener {
         Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
         g.clearRect(0, 0, frame.getWidth(), frame.getHeight());
 
-        for(int i = 0; i < importedImages.size(); i++){
-            for(int x = 0; x< importedImages.get(i).pixels.length; x++){
-                for(int y = 0; y< importedImages.get(i).pixels[x].length; y++){
-                    g.setColor(new Color(importedImages.get(i).pixels[x][y].r,importedImages.get(i).pixels[x][y].g,importedImages.get(i).pixels[x][y].b,importedImages.get(i).pixels[x][y].a));
-                    g.drawRect(x,y,1,1);
+        for (int i = 0; i < importedImages.size(); i++) {
+            for (int x = 0; x < importedImages.get(i).pixels.length; x += 2) {
+                for (int y = 0; y < importedImages.get(i).pixels[x].length; y += 2) {
+                    g.setColor(new Color(importedImages.get(i).pixels[x][y].r, importedImages.get(i).pixels[x][y].g, importedImages.get(i).pixels[x][y].b, importedImages.get(i).pixels[x][y].a));
+                    g.fillRect((int) (x * importedImages.get(i).scale), (int) (y * importedImages.get(i).scale), 2, 2);
                 }
             }
         }
