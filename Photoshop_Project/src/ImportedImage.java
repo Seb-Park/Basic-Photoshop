@@ -27,14 +27,14 @@ public class ImportedImage {
         if (!path.endsWith(".png")) {
             for (int x = 0; x < image.getWidth(); x++) {
                 for (int y = 0; y < image.getHeight(); y++) {
-                    pixels[x][y] = new Pixel(howMuchRed(x, y), howMuchGreen(x, y), howMuchBlue(x, y));
+                    pixels[x][y] = new Pixel(howMuchRed(x, y), howMuchGreen(x, y), howMuchBlue(x, y),x,y);
                 }
             }
         }
         else{
             for (int x = 0; x < image.getWidth(); x++) {
                 for (int y = 0; y < image.getHeight(); y++) {
-                    pixels[x][y] = new Pixel(new Color(image.getRGB(x,y),true));
+                    pixels[x][y] = new Pixel(new Color(image.getRGB(x,y),true),x,y);
                 }
             }
         }

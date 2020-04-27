@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main implements Runnable, KeyListener {
     final int WIDTH = 1000;
@@ -285,7 +286,9 @@ public class Main implements Runnable, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            Matrix.multiplyMatricies(new Matrix(new double[][]{{0,3,5},{5,5,2}}),new Matrix(new double[][]{{3,4},{3,-2},{4,-2}}));
             importNewImage();
+            Matrix.multiplyMatricies(new Matrix(new double[][]{{0,3,5},{5,5,2}}),new Matrix(new double[][]{{3,4},{3,-2},{4,-2}}));
         }
     }
 
