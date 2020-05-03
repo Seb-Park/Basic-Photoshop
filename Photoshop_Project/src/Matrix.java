@@ -39,6 +39,6 @@ public class Matrix {
             }
         }
         System.out.println(Arrays.deepToString(returnableDoubles));
-        return null;
+        return new Matrix(returnableDoubles);
     }
 }

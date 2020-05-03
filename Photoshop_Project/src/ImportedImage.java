@@ -9,6 +9,8 @@ public class ImportedImage {
     String path;
     Pixel[][] pixels;
     public double scale;
+    public double xpos = 0;
+    public double ypos = 0;
 
     public ImportedImage(String pPath) {
         scale = 0.5;
@@ -36,6 +38,11 @@ public class ImportedImage {
                 for (int y = 0; y < image.getHeight(); y++) {
                     pixels[x][y] = new Pixel(new Color(image.getRGB(x,y),true),x,y);
                 }
+            }
+        }
+        for(int x = 0; x < image.getWidth(); x++){
+            for (int y = 0; y < image.getHeight(); y++){
+                pixels[x][y].vectorPosition = Matrix.multiplyMatricies(new Matrix (new double[][]{{1,0,2},{0,1,2},{0,0,1}}),pixels[x][y].vectorPosition);
             }
         }
 

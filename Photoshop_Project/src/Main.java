@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main implements Runnable, KeyListener {
     final int WIDTH = 1000;
@@ -181,13 +180,13 @@ public class Main implements Runnable, KeyListener {
         f1 = new JMenuItem("Open...");
         f2 = new JMenuItem("Open Recent");
         f3 = new JMenuItem("Import...");
-        f3.addActionListener(e->
+        f3.addActionListener(e ->
         {
             importNewImage();
         });
         f4 = new JMenuItem("Export");
         f4.addActionListener(
-                e->{
+                e -> {
                     export();
                 }
         );
@@ -237,7 +236,8 @@ public class Main implements Runnable, KeyListener {
             for (int x = 0; x < importedImages.get(i).pixels.length; x += 2) {
                 for (int y = 0; y < importedImages.get(i).pixels[x].length; y += 2) {
                     g.setColor(new Color(importedImages.get(i).pixels[x][y].r, importedImages.get(i).pixels[x][y].g, importedImages.get(i).pixels[x][y].b, importedImages.get(i).pixels[x][y].a));
-                    g.fillRect((int) (x * importedImages.get(i).scale), (int) (y * importedImages.get(i).scale), 2, 2);
+                    g.fillRect((int) (importedImages.get(i).xpos + importedImages.get(i).pixels[x][y].vectorPosition.values[0][0] * importedImages.get(i).scale),
+                            (int) (importedImages.get(i).ypos + importedImages.get(i).pixels[x][y].vectorPosition.values[0][1] * importedImages.get(i).scale), 2, 2);
                 }
             }
         }
@@ -246,7 +246,7 @@ public class Main implements Runnable, KeyListener {
         bufferStrategy.show();
     }
 
-    public void export(){
+    public void export() {
 
         String dir;
         FileDialog fdL = new FileDialog(new Frame(), "Export", FileDialog.SAVE);
@@ -272,7 +272,7 @@ public class Main implements Runnable, KeyListener {
         pane.printAll(g2d);
         g2d.dispose();
         try {
-            ImageIO.write(img, "png", new File(dir+fileName));
+            ImageIO.write(img, "png", new File(dir + fileName));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -286,9 +286,13 @@ public class Main implements Runnable, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            Matrix.multiplyMatricies(new Matrix(new double[][]{{0,3,5},{5,5,2}}),new Matrix(new double[][]{{3,4},{3,-2},{4,-2}}));
+            Matrix.multiplyMatricies(new Matrix(new double[][]{
+                    {0, 3, 5}, {5, 5, 2}}), new Matrix(new double[][]{
+                    {3, 4},
+                    {3, -2},
+                    {4, -2}}));
             importNewImage();
-            Matrix.multiplyMatricies(new Matrix(new double[][]{{0,3,5},{5,5,2}}),new Matrix(new double[][]{{3,4},{3,-2},{4,-2}}));
+            Matrix.multiplyMatricies(new Matrix(new double[][]{{0, 3, 5}, {5, 5, 2}}), new Matrix(new double[][]{{3, 4}, {3, -2}, {4, -2}}));
         }
     }
 
